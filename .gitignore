@@ -1,3 +1,5 @@
 .vscode/
 pyenv/
 txt_sentoken/
+neural-nets/data
+__pycache__/
