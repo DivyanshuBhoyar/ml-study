@@ -19,6 +19,7 @@ class Activation(Layer):
         )  # based on the formula
 
 
+# works, tested with mse
 class Tanh(Activation):
     def __init__(self):
         tanh = lambda x: np.tanh(x)
@@ -26,6 +27,7 @@ class Tanh(Activation):
         super().__init__(tanh, tanh_prime)
 
 
+# works, tested with mse
 class Sigmoid(Activation):
     def __init__(self):
         sigmoid = lambda x: 1 / (1 + np.exp(-x))
@@ -33,6 +35,7 @@ class Sigmoid(Activation):
         super().__init__(sigmoid, sigmoid_prime)
 
 
+# doenst work
 class ReLU(Activation):
     def __init__(self):
         relu = lambda x: np.maximum(0, x)
@@ -40,6 +43,7 @@ class ReLU(Activation):
         super().__init__(relu, relu_prime)
 
 
+# doesnt
 class Softmax(Activation):
     def __init__(self):
         super().__init__(self.softmax, self.softmax_prime)
@@ -53,6 +57,7 @@ class Softmax(Activation):
         return p * (1 - p)
 
 
+# works, with mse
 class SoftPlus(Activation):
     def __init__(self):
         softplus = lambda x: np.log(1 + np.exp(x))

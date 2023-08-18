@@ -1,6 +1,8 @@
 from typing import List
 from layer import Layer
-from losses import mse, mse_prime
+import numpy as np
+from typing import Callable
+from datautils import shuffle_io, encode_categories
 
 
 def pred(network, input):
@@ -10,21 +12,32 @@ def pred(network, input):
     return output
 
 
-def train(network: List[Layer], X_train, Y_train, logs=True, alpha=0.01, epochs=1000):
+#  full batch
+def train(
+    network: List[Layer],
+    X_train,
+    Y_train,
+    loss: Callable,
+    loss_grad: Callable,
+    logs=True,
+    alpha=0.01,
+    epochs=1000,
+    shuffle=False,
+):
+    if shuffle:
+        X_train, Y_train = shuffle_io(X_train, Y_train)
+
     for e in range(epochs):
         err = 0
 
         for x, y in zip(X_train, Y_train):
+            # print(x, y)
             # forward
-            output = x
-            for layer in network:
-                output = layer.forward(
-                    output
-                )  # we are not reinitialising params here, live updated params from prev will be used as layers are defined only once
-            # output = pred(network, x)
+            # we are not reinitialising any params here, live updated params from prev will be used in fwd_pred
+            output = pred(network, x)  # fwd
 
-            err += mse(y, output)
-            grad = mse_prime(y, output)
+            err += loss(y, output)
+            grad = loss_grad(y, output)
 
             # bacward
             for layer in reversed(network):
@@ -35,24 +48,22 @@ def train(network: List[Layer], X_train, Y_train, logs=True, alpha=0.01, epochs=
             print("error for epoch ", e + 1, "= ", err)
 
 
-# epochs = 1000
-# alpha = 0.011
+def run_test(network, input):
+    res = []
+    for row in input:
+        p = pred(network, row)
+        res.append(p)
 
-# for e in range(epochs):
-#     err = 0
+    return np.stack(res)
 
-#     for x, y in zip(X, Y):
-#         # forward
-#         output = x
-#         for layer in network:
-#             output = layer.forward(output) # we are not reinitialising params here, live params from prev res will be used as layers are defined only once
 
-#         err += mse(y, output)
-#         grad = mse_prime(y, output)
+def evaluate_classifn(y_true, y_out):
+    y_out = np.squeeze(y_out, axis=2)
+    y_true = np.squeeze(y_true, axis=2)
 
-#         #bacward
-#         for layer in reversed(network):
-#             grad = layer.backward(grad, alpha)
+    y_out = np.argmax(y_out, axis=1)
+    y_true = np.argmax(y_true, axis=1)
 
-#     err /= len(X)
-#     print("error for epoch ", e+1, "= ", err)
+    accuracy = np.mean(y_true == y_out)
+
+    print("Network accuracy ☢️", accuracy)
