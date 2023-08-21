@@ -24,6 +24,7 @@ def train(
     epochs=1000,
     shuffle=False,
 ):
+    J = []  # error history
     if shuffle:
         X_train, Y_train = shuffle_io(X_train, Y_train)
 
@@ -43,9 +44,13 @@ def train(
             for layer in reversed(network):
                 grad = layer.backward(grad, alpha)
 
+        err /= len(X_train)
         if logs:
-            err /= len(X_train)
             print("error for epoch ", e + 1, "= ", err)
+
+        J.append(err)
+
+    return J
 
 
 def run_test(network, input):
