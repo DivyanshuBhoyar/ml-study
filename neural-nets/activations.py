@@ -7,19 +7,18 @@ class Activation(Layer):
         self.activtn = activtn
         self.activtn_prime = activtn_prime
 
-    # gets linear z as input, spits out activated a during fwd prop
+    # gets linear z as input, spits out activated `a` during fwd prop
     def forward(self, input: np.ndarray):
         self.input = input
         return self.activtn(self.input)
 
-    # input is output grad; return the input gradient
+    # input is output grad; returns input gradient
     def backward(self, output_grad: np.ndarray, alpha: float):
         return np.multiply(
             output_grad, self.activtn_prime(self.input)
         )  # based on the formula
 
 
-# works, tested with mse
 class Tanh(Activation):
     def __init__(self):
         tanh = lambda x: np.tanh(x)
@@ -27,7 +26,6 @@ class Tanh(Activation):
         super().__init__(tanh, tanh_prime)
 
 
-# works, tested with mse
 class Sigmoid(Activation):
     def __init__(self):
         sigmoid = lambda x: 1 / (1 + np.exp(-x))
@@ -57,7 +55,6 @@ class Softmax_(Activation):
         return p * (1 - p)
 
 
-# works, with mse
 class SoftPlus(Activation):
     def __init__(self):
         softplus = lambda x: np.log(1 + np.exp(x))
@@ -72,6 +69,9 @@ class Softmax(Layer):
         self.output = tmp / np.sum(tmp)
         return self.output
 
-    def backward(self, output_gradient, learning_rate):
+    def backward(self, err_gradient, learning_rate):
         n = np.size(self.output)
-        return np.dot((np.identity(n) - self.output.T) * self.output, output_gradient)
+        # return np.dot((np.identity(n) - self.output.T) * self.output, err_gradient)
+
+        tmp = np.tile(self.output, n)
+        return np.dot(tmp * (np.identity(n) - np.transpose(tmp)), err_gradient)

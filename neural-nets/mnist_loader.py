@@ -100,3 +100,17 @@ def vectorized_result(j):
     e[j] = 1.0
     e = e.astype("float32")
     return e
+
+
+def preprocess_data(x, y, limit):
+    x = x.reshape(x.shape[0], 28 * 28, 1)
+    x = x.astype("float32") / 255
+
+    num_samples = y.shape[0]
+    num_classes = np.max(y) + 1
+    y_encoded = np.zeros((num_samples, num_classes))
+    y_encoded[np.arange(num_samples), y] = 1
+
+    y_encoded = y_encoded.reshape(num_samples, num_classes, 1)
+
+    return x[:limit], y_encoded[:limit]

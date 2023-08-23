@@ -23,3 +23,7 @@ def categorical_crossentropy(y_true: np.ndarray, y_pred: np.ndarray):
 
 def categorical_crossentropy_prime(y_true: np.ndarray, y_pred: np.ndarray):
     return y_pred - y_true
+
+
+# OR
+# return - y_true / y_pred
