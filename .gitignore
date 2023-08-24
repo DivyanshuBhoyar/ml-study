@@ -4,3 +4,4 @@ txt_sentoken/
 neural-nets/data
 __pycache__/
 word-embedding/data
+tf-meta/
