@@ -30,6 +30,7 @@ def my_train_test_split(df: DataFrame, y_columns, test_size, random_state=None):
     df = df.sample(frac=1, random_state=random_state)
 
     x_columns = [col for col in df.columns if col not in y_columns]
+
     X = df[x_columns].to_numpy()
     Y = df[y_columns].to_numpy()
 

@@ -38,11 +38,11 @@ def train(
             output = pred(network, x)  # fwd
 
             err += loss(y, output)
-            grad = loss_grad(y, output)
+            grad = loss_grad(y, output)  # dE/dYpred
 
             # bacward
             for layer in reversed(network):
-                grad = layer.backward(grad, alpha)
+                grad = layer.backward(grad, alpha)  # grad updates per layer
 
         err /= len(X_train)
         if logs:
