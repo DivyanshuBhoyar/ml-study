@@ -12,11 +12,12 @@ def ensure_array(arrayable: Arrayable) -> np.ndarray:
 
 
 class MyTensor:
-    def __init__(
-        self, data: Arrayable, _children=(), _op="", label="", requires_grad=False
-    ) -> None:
-        self.data = ensure_array(data)
-        self.requires_grad = requires_grad
+    def __init__(self, data, _children=(), _op="", label="") -> None:
+        if isinstance(data, np.ndarray):
+            self.data = data
+        else:
+            self.data = np.array(data)
+
         self._prev = set(_children)
         self._op: str = _op
         self._backward = lambda: None
@@ -25,23 +26,33 @@ class MyTensor:
         self.label = label
 
     def __repr__(self) -> str:
-        return f"\nT({self.data}, rg={self.requires_grad}[0])"
+        return f"T({self.data}, {self.grad})"
 
     def __add__(self, other) -> "MyTensor":
         other = other if isinstance(other, MyTensor) else MyTensor(other)
-        out = MyTensor(data=self.data + other.data, _children=(self, other), _op="+")
+
+        out = MyTensor(
+            data=self.data + other.data,
+            _children=(self, other),
+            _op="+",
+        )
 
         def _bkwd():
             self.grad = self.grad + (out.grad * 1.0)
             other.grad = other.grad + (out.grad * 1.0)
 
         out._backward = _bkwd
+
         return out
 
     def __mul__(self, other):
         other = other if isinstance(other, MyTensor) else MyTensor(other)
 
-        out = MyTensor(self.data * other.data, (self, other), "*")
+        out = MyTensor(
+            self.data * other.data,
+            (self, other),
+            "*",
+        )
 
         def _backward():
             self.grad = self.grad + (other.data * out.grad)
@@ -88,6 +99,15 @@ class MyTensor:
 
     def __sub__(self, other):
         return self + (-other)
+
+    def __radd__(self, other):
+        return self + other
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __truediv__(self, other):
+        return self * other**-1
 
     def exp(self):
         x = self.data
