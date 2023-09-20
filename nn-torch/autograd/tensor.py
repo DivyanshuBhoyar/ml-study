@@ -26,7 +26,7 @@ class MyTensor:
         self.label = label
 
     def __repr__(self) -> str:
-        return f"T({self.data}, {self.grad})"
+        return f"T({self.data}, {self.grad}, {self._op})"
 
     def __add__(self, other) -> "MyTensor":
         other = other if isinstance(other, MyTensor) else MyTensor(other)
@@ -126,6 +126,30 @@ class MyTensor:
 
         def _backward():
             self.grad = self.grad + ((1 - t**2) * out.grad)
+
+        out._backward = _backward
+        return out
+
+    def elu(self, alpha=1.0):
+        x = self.data
+        y = np.where(x > 0, x, alpha * (np.exp(x) - 1))
+        out = MyTensor(y, (self,), "elu")
+
+        def _backward():
+            self.grad = self.grad + np.where(
+                x > 0, out.grad, alpha * np.exp(x) * out.grad
+            )
+
+        out._backward = _backward
+        return out
+
+    def softplus(self):
+        x = self.data
+        sp = np.log(1 + np.exp(x))
+        out = MyTensor(sp, (self,), "softplus")
+
+        def _backward():
+            self.grad = self.grad + (1 / (1 + np.exp(-x)) * out.grad)
 
         out._backward = _backward
         return out
