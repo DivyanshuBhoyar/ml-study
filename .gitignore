@@ -5,3 +5,16 @@ neural-nets/data
 __pycache__/
 word-embedding/data
 tf-meta/
+data/
+lib/
+bin/
+bin2/
+model_out/
+*spm*
+*model
+*vocab
+*test*
+*train*
+*valid*
+wandb/
+opus*

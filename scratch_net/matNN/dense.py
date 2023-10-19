@@ -17,7 +17,15 @@ class Dense(Layer):
         del_x = np.dot(self.weis.T, ouput_grad)
         # del_b = ouput_grad
 
-        self.weis -= optim.get_update_term(self.weis, del_w)
-        self.bias -= optim.get_update_term(self.bias, ouput_grad)
+        self.weis -= (
+            optim.get_update_term(self.weis, del_w)
+            if optim is not None
+            else alpha * del_w
+        )
+        self.bias -= (
+            optim.get_update_term(self.bias, ouput_grad)
+            if optim is not None
+            else alpha * ouput_grad
+        )
 
         return del_x
